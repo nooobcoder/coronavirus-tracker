@@ -1,0 +1,188 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > CoronaVirusDataService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">io.shardon.coronavirustracker.services</a>
+</div>
+
+<h1>Coverage Summary for Class: CoronaVirusDataService (io.shardon.coronavirustracker.services)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CoronaVirusDataService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (24/24)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">CoronaVirusDataService$MockitoMock$1107573775</td>
+  </tr>
+  <tr>
+    <td class="name">CoronaVirusDataService$MockitoMock$1107573775$auxiliary$7etoXVyn</td>
+  </tr>
+  <tr>
+    <td class="name">CoronaVirusDataService$MockitoMock$1107573775$auxiliary$hDUytHnP</td>
+  </tr>
+  <tr>
+    <td class="name">CoronaVirusDataService$MockitoMock$1107573775$auxiliary$JcctTG0Q</td>
+  </tr>
+  <tr>
+    <td class="name">CoronaVirusDataService$MockitoMock$1107573775$auxiliary$OSTQJj0g</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (24/24)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package io.shardon.coronavirustracker.services;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import ch.qos.logback.core.net.server.Client;
+<i class="no-highlight">4</i>&nbsp;import io.shardon.coronavirustracker.models.LocationStats;
+<i class="no-highlight">5</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">6</i>&nbsp;
+<i class="no-highlight">7</i>&nbsp;import org.apache.commons.csv.CSVFormat;
+<i class="no-highlight">8</i>&nbsp;import org.apache.commons.csv.CSVRecord;
+<i class="no-highlight">9</i>&nbsp;import org.springframework.scheduling.annotation.Scheduled;
+<i class="no-highlight">10</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import javax.annotation.PostConstruct;
+<i class="no-highlight">13</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">14</i>&nbsp;import java.io.StringReader;
+<i class="no-highlight">15</i>&nbsp;import java.net.URI;
+<i class="no-highlight">16</i>&nbsp;import java.net.http.HttpClient;
+<i class="no-highlight">17</i>&nbsp;import java.net.http.HttpRequest;
+<i class="no-highlight">18</i>&nbsp;import java.net.http.HttpResponse;
+<i class="no-highlight">19</i>&nbsp;import java.util.ArrayList;
+<i class="no-highlight">20</i>&nbsp;import java.util.List;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;@Service
+<b class="fc"><i class="no-highlight">23</i>&nbsp;public class CoronaVirusDataService {</b>
+<i class="no-highlight">24</i>&nbsp;
+<b class="fc"><i class="no-highlight">25</i>&nbsp;    private static String VIRUS_DATA_URL = &quot;https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv&quot;;</b>
+<i class="no-highlight">26</i>&nbsp;
+<b class="fc"><i class="no-highlight">27</i>&nbsp;    private List&lt;LocationStats&gt; allStats = new ArrayList&lt;&gt;();</b>
+<i class="no-highlight">28</i>&nbsp;
+<i class="no-highlight">29</i>&nbsp;    public List&lt;LocationStats&gt; getAllStats() {
+<b class="fc"><i class="no-highlight">30</i>&nbsp;        return allStats;</b>
+<i class="no-highlight">31</i>&nbsp;    }
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;    @PostConstruct
+<i class="no-highlight">34</i>&nbsp;    @Scheduled(cron = &quot;* * 1 * * *&quot;)  //ss mm hh dd mm yy
+<i class="no-highlight">35</i>&nbsp;    public void fetchVirusData() throws IOException, InterruptedException {
+<i class="no-highlight">36</i>&nbsp;
+<b class="fc"><i class="no-highlight">37</i>&nbsp;        List&lt;LocationStats&gt; newStats = new ArrayList&lt;&gt;();</b>
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        HttpClient client = HttpClient.newHttpClient();</b>
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        HttpRequest request =  HttpRequest.newBuilder()</b>
+<b class="fc"><i class="no-highlight">40</i>&nbsp;                .uri(URI.create(VIRUS_DATA_URL))</b>
+<b class="fc"><i class="no-highlight">41</i>&nbsp;                .build();</b>
+<i class="no-highlight">42</i>&nbsp;
+<b class="fc"><i class="no-highlight">43</i>&nbsp;        HttpResponse&lt;String&gt; httpResponse =  client.send(request, HttpResponse.BodyHandlers.ofString());</b>
+<b class="fc"><i class="no-highlight">44</i>&nbsp;        System.out.println(httpResponse.body());</b>
+<b class="fc"><i class="no-highlight">45</i>&nbsp;        StringReader csvBodyReader = new StringReader(httpResponse.body());</b>
+<b class="fc"><i class="no-highlight">46</i>&nbsp;        Iterable&lt;CSVRecord&gt; records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);</b>
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;
+<b class="fc"><i class="no-highlight">49</i>&nbsp;        for (CSVRecord record : records) {</b>
+<b class="fc"><i class="no-highlight">50</i>&nbsp;            LocationStats locationstats = new LocationStats();</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;            locationstats.setState(record.get(&quot;Province/State&quot;));</b>
+<b class="fc"><i class="no-highlight">52</i>&nbsp;            locationstats.setCountry(record.get(&quot;Country/Region&quot;));</b>
+<b class="fc"><i class="no-highlight">53</i>&nbsp;            int latestCases = Integer.parseInt(record.get(record.size() - 1));</b>
+<b class="fc"><i class="no-highlight">54</i>&nbsp;            int prevDayCases = Integer.parseInt(record.get(record.size() - 2));</b>
+<b class="fc"><i class="no-highlight">55</i>&nbsp;            locationstats.setLatestTotalCases(latestCases);</b>
+<b class="fc"><i class="no-highlight">56</i>&nbsp;            locationstats.setDiffFromPrevDay(latestCases-prevDayCases);</b>
+<b class="fc"><i class="no-highlight">57</i>&nbsp;            newStats.add(locationstats);</b>
+<b class="fc"><i class="no-highlight">58</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        this.allStats = newStats;</b>
+<i class="no-highlight">60</i>&nbsp;    }
+<i class="no-highlight">61</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-16 21:36</div>
+</div>
+</body>
+</html>
